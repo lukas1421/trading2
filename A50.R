@@ -1,0 +1,40 @@
+#single stock analysis
+
+ss <- fread("F:/sz000839.csv")
+ss[, Date:=ymd(Date)]
+ss[, weekday:=wday(Date)-1]
+ss[,retCO:=log(Close/Open)]
+ss[,retCC:=log(Close/shift(Close,1))]
+ss[,retOPC:=log(Open/shift(Close,1))]
+ss[, retOPCY:=shift(retOPC,1)]
+ss[,percentile:=(Close-Low)/(High-Low)]
+ss[,percentileY:=shift(percentile,1)]
+ss[is.na(percentileY), percentileY:=0.5]
+ss[, percentileYCat:=cut(percentileY, unique(quantile(percentileY)),include.lowest = T)]
+ss[, retCH:=log(Close/High)]
+ss[, retCL:=log(Close/Low)]
+ss[, retCHY:=shift(retCH,1)]
+ss[, retCLY:=shift(retCL,1)]
+ss[, retHO:=log(High/Open)]
+ss[, retLO:=log(Low/Open)]
+ss[, retLOY:=shift(retLO)]
+ss[, retHOY:=shift(retHO)]
+ss[, retCHCLY:= retCHY+retCLY]
+ss[, retCHCLYCat:=cut(retCHCLY, quantile(retCHCLY,na.rm = T),include.lowest = T)]
+ss[, retHOYCat:=cut(retHOY, quantile(retHOY,na.rm = T),include.lowest = T)]
+
+ss[, CLP:=log(Close/Low)/(log(High/Low))]
+ss[, CLPY:=shift(CLP,1)]
+ss[, CLPYCat:=cut(CLPY, quantile(CLPY,na.rm = T),include.lowest = T)]
+ss[, CHP:=log(Close/High)/(log(High/Low))]
+ss[, CHPY:=shift(CHP,1)]
+ss[, CHPYCat:=cut(CHPY, quantile(CHPY,na.rm = T),include.lowest = T)]
+ss[, openP:=(Open-Low)/(High-Low)]
+ss[, openPY:=shift(openP)]
+ss[, openPYCat:=cut(openPY, quantile(openPY,na.rm = T),include.lowest = T)]
+ss[, retCHYCat:=cut(retCHY,quantile(retCHY,na.rm = T),include.lowest = T)]
+ss[, retCLYCat:=cut(retCLY,quantile(retCLY,na.rm = T),include.lowest = T)]
+
+
+ss[weekday=="2", calcSharp(retCO),keyby=list(weekday,percentileYCat, retHOYCat)]
+
