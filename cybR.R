@@ -9,10 +9,9 @@ require(PerformanceAnalytics)
 require(quantmod)
 require(httr)
 
-cybDir <- "H:\\Data\\cybR\\"
-dayDataFolder <-  "G:\\export\\"
 
-cybDay <- fread( paste0(dayDataFolder,"SZ#399006.txt"),header = TRUE,skip = 1,fill = T,
+
+cybDay <- fread( paste0(dataFolder,"SZ#399006.txt"),header = TRUE,skip = 1,fill = T,
                  showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
 
 cybDay <- cybDay[!.N,]
@@ -76,6 +75,12 @@ for (v in c("O","H","L","C")) {
   resCyb2[is.na(get(paste0(v,1300))), eval(paste0(v,1300)):=get(paste0(v,1301)),]
   resCyb2[is.na(get(paste0(v,1500))), eval(paste0(v,1500)):=get(paste0(v,1459)),]
 }
+
+
+#tradeTime <-c(931:959,1000:1059,1100:1130,1300:1359,1400:1459,1500)
+amTime <- c(931:959,1000:1059,1100:1130)
+pmTime <- c(1300:1359,1400:1459,1500)
+tradeTime<- c(amTime,pmTime)
 
 #max min
 resCyb2[, dayMax:=max(unlist(mget(paste0("H",tradeTime)))), keyby=list(D)]
@@ -169,7 +174,7 @@ cybMerged[, AMPMRatioYCat:= cut(AMPMRatioY,quantile(AMPMRatioY,na.rm = T),includ
 # daily graph bars
 cybGraph<-cybDay[,list(Open=O,High=H,Low=L,Close=C),]
 cybGraph <- xts(cybGraph,order.by = cybDay$D)
-candleChart(cybGraph['20170101/20190101'], theme="white",type="candles")
+candleChart(cybGraph['20170101/20170701'], theme="white",type="candles")
 
 #Detailed Graph CYB
 resCyb[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]

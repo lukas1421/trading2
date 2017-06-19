@@ -217,7 +217,7 @@ graph <- function(symb,dateStr) {
 graphD <- function(symb,dateStr) {
   require(xts)
   require(quantmod)
-  dataFolder <- "J:\\TDX\\T0002\\export_1m\\"
+  #dataFolder <- "J:\\TDX\\T0002\\export_1m\\"
 
   ticker <- paste0(toupper(str_sub(symb,1,2)),"#",str_sub(symb,3))
   d<- fread(paste0(dataFolder,ticker,".txt"),skip = 1,fill = T,showProgress = TRUE,col.names = c("D","T","O","H","L","C","V","A"))
@@ -239,10 +239,8 @@ graphD <- function(symb,dateStr) {
 
 getDataPure<- function(symb) {
   print(paste0(" getting ",symb))
-  #dataFolder <- "J:\\TDX\\T0002\\export\\"
   ticker <- paste0(toupper(str_sub(symb,1,2)),"#",str_sub(symb,3))
   d<- fread(paste0(dataFolder,ticker,".txt"),skip = 1,fill = T,showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
-  
   d <- d[!.N,]
   d[, D:=ymd(D)]
   return(d[,list(D,O,H,L,C)])
