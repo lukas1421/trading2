@@ -6,6 +6,10 @@ require(stringr)
 require(lubridate)
 require(plyr)
 
+
+
+
+
 print(html_attr(l,"href"))
 l3<-print(html_attrs(l))
 l2<-html_text(l)%>% (function(x) iconv(x,"utf-8","gb2312"))
@@ -36,8 +40,10 @@ extractDiv <- function(x) {
     print(tickerFull)
     datePrice = ymd(ifelse(!is.na(stockDivDate), ifelse(!is.na(cashDivDate),ifelse(cashDivDate<stockDivDate,cashDivDate,stockDivDate)
                                                         ,stockDivDate), cashDivDate))
-    dateOff <- ifelse(weekdays(datePrice)=="星期一", 3,1)
-    lastPrice <- as.numeric(getLastCloseV2(tickerFull,datePrice-dateOff))
+    dateOff = ifelse(weekdays(datePrice)=="星期一", 3,1)
+    #dateoff <- 6
+    print(datePrice - 6)
+    lastPrice = as.numeric(getLastClose(tickerFull,datePrice-6))
     #lastPrice = as.numeric(getLastClose(tickerFull, Sys.Date()-4))
     
     print(lastPrice)
@@ -57,7 +63,6 @@ extractDiv <- function(x) {
 }
 
 
-#start here
 url <- getDivURL()
 #url <- "http://stock.10jqka.com.cn/20170510/c598501361.shtml"
 a<-read_html(url)
@@ -65,8 +70,12 @@ l<-html_nodes(a,"p")
 l<-html_text(l)%>% (function(x) iconv(x,"utf-8","gb2312"))
 l<-l[grep(paste0(Sys.Date()), l)]
 l<-str_trim(l)
+
 res <- data.table(ticker="",chineseName="", cashDiv=0, cashDivDate = "", stockDiv=0, stockDivDate="", lastPrice=0)
+
 l_ply(l, extractDiv)
+#res <- res[lastPrice!=0.0]
+#res <- res[cashDivDate==Sys.Date()]
 
 res[, cashDivDate:=ymd(cashDivDate)]
 res[, stockDivDate:=ymd(stockDivDate)]
@@ -74,41 +83,18 @@ res[is.na(stockDiv), stockDiv:=0]
 res[is.na(cashDiv), cashDiv:=0]
 res[, adjFactor:= ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))/lastPrice]
 res[, adjPrice := ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))]
-res<-res
-res<-res[!(!is.na(stockDivDate) & cashDivDate!=Sys.Date())]
+res<-res[-1]
 res<-res[!is.infinite(adjFactor) & !is.nan(adjFactor)]
 res[, inList:=isInStockList(ticker), .(ticker) ]
 res<-res[inList==TRUE, ]
-write.table(res, paste0(tradingFolder,"div.txt"),quote = FALSE,sep = "\t")
+write.table(res, "C:\\Users\\LUke\\Desktop\\Trading\\div.txt",quote = FALSE,sep = "\t")
 
 
 ##############################################################
-tickerList<- fread(paste0(tradingFolder,"tickerListDiv",".txt"), header=F)
+tickerList<- fread(paste0("C:\\Users\\LUke\\Desktop\\Trading\\","tickerListDiv",".txt"), header=F)
 isInStockList <- function(symb) {
   sum(tickerList==symb)>0
 }
-
-
-########get close V2 
-
-getLastCloseV2 <- function(symb,dat) {
-  
-  ticker <- paste0(toupper(str_sub(symb,1,2)),"#",str_sub(symb,3))
-  stock <- data.table()
-  tryCatch( 
-    {
-      stock <- fread(paste0(dataFolder,ticker, ".txt"),header = TRUE,skip = 1,fill = T,
-                     showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
-      stock <- stock [!.N,]
-      stock [, D:=ymd(D)]
-      return(stock[D<=dat, ][.N,C])
-    }, error = function(err) {
-      print(err)
-      stock <- 0.0
-      return(0.0)
-    })
-}
-    
 
 
 #####################################  GET LAST CLOSE ########################
@@ -120,8 +106,8 @@ getLastClose<- function(symb, dat) {
   
   print(paste0(" dat in get close is ",dat))
   
-  begin <- format(dat,"%Y%m%d")
-  end <- format(Sys.Date(),"%Y%m%d")
+  begin = format(dat,"%Y%m%d")
+  end = format(Sys.Date(),"%Y%m%d")
   
   url <- paste0("http://biz.finance.sina.com.cn/stock/flash_hq/kline_data.php?symbol=",symb,"&begin_date=",begin,"&end_date=",end)
   a<-read_html(url)
@@ -129,8 +115,8 @@ getLastClose<- function(symb, dat) {
   #print(l)
   if(length(l)!=0) {
     dt <- data.table(d=ymd(xml_attr(html_nodes(a,"content"),"d")),o=as.numeric(xml_attr(html_nodes(a,"content"),"o")),    
-            h=as.numeric(xml_attr(html_nodes(a,"content"),"h")),l=as.numeric(xml_attr(html_nodes(a,"content"),"l")),
-                c=as.numeric(xml_attr(html_nodes(a,"content"),"c")),v=as.numeric(xml_attr(html_nodes(a,"content"),"v")))
+                     h=as.numeric(xml_attr(html_nodes(a,"content"),"h")),l=as.numeric(xml_attr(html_nodes(a,"content"),"l")),
+                     c=as.numeric(xml_attr(html_nodes(a,"content"),"c")),v=as.numeric(xml_attr(html_nodes(a,"content"),"v")))
     print(dt)
     
     if(nrow(dt[d==dat]) >0) {
@@ -150,6 +136,5 @@ getDivURL <-function() {
            (function(x) x[which(names(x)=="href")])) 
 }
 
-d<- fread(paste0(tradingFolder,"tickerListDiv",".txt"), showProgress = TRUE)
+d<- fread(paste0("C:\\Users\\LUke\\Desktop\\Trading\\","tickerListDiv",".txt"), showProgress = TRUE)
 d1<-unlist(d)
-          
