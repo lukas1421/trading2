@@ -6,8 +6,7 @@ library(data.table)
 library(lubridate)
 library(PerformanceAnalytics)
 
-dataFolder <- "G:\\export\\"
-minuteDataFolder <- "G:\\export_1m\\"
+
 
 
 analyzeSS <- function(symb) {
