@@ -6,9 +6,12 @@ require(lubridate)
 require(plyr)
 
 
-divText<- fread(paste0(tradingFolder,"divRaw.txt"),header = FALSE)
-names(divText) <- c("ticker","chineseName","divs")
+divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
 
+
+divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
+names(divText) <- c("ticker","chineseName","divs")
+divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
 divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
 
 res<-divText[, c(chineseName,extractDiv1(ticker,divs)), by=.(ticker)]
@@ -28,7 +31,7 @@ write.table(res, paste0(tradingFolder,"div.txt"),quote = FALSE,sep = "\t")
 
 extractDiv1 <- function(tickerFull,x) {
   date <- Sys.Date()
-  cashDiv = as.numeric(str_match(x,"派(.*)(?:\\s+)?元")[2])
+  cashDiv = ifelse(is.na(as.numeric(str_match(x,"派(.*)(?:\\s+)?元")[2])),0,as.numeric(str_match(x,"派(.*)(?:\\s+)?元")[2]))
   #cashDivDate = (str_match(x, "派息日(\\d{4}-\\d{2}-\\d{2})")[2])
   stockDiv1 = ifelse(is.na(as.numeric(str_match(x,"[送](.*?)(?:\\s+)?股" )[2])),0,as.numeric(str_match(x,"[送](.*?)(?:\\s+)?股" )[2]))
   stockDiv2 = ifelse(is.na(as.numeric(str_match(x,"[转](.*?)(?:\\s+)?股" )[2])),0,as.numeric(str_match(x,"[转](.*?)(?:\\s+)?股" )[2]))
