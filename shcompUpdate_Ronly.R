@@ -8,15 +8,16 @@ require(reshape2)
 require(PerformanceAnalytics)
 require(quantmod)
 
-mainDir <- "J:\\Data\\mainBoardR\\"
-dayDataFolder <- "J:\\TDX\\T0002\\export\\"
+#mainDir <- "J:\\Data\\mainBoardR\\"
+#dayDataFolder <- "J:\\TDX\\T0002\\export\\"
 
 
-#mainDir <- "H:\\Data\\mainBoardR\\"
-#dayDataFolder <-  "G:\\export\\"
+mainDir <- "H:\\Data\\mainBoardR\\"
+dayDataFolder <-  "G:\\export\\"
 
 indexDay <- fread(paste0(dayDataFolder,"SH#000001.txt"),header = TRUE,skip = 1,fill = T,
                   showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
+
 indexDay<- indexDay[!.N,]
 indexDay[, D:=ymd(D)]
 
@@ -97,7 +98,7 @@ res2[, pmMinT1 := as.numeric(pmTime[which.min(unlist(mget(paste0("L",pmTime))))]
 # MERGE ########################################################################################
 resMerged <- merge(indexDay,res2,by = "D" )
 
-resMerged[, weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),
+resMerged[, weekday:= factor(weekdays(D),levels = c("????一","???诙?","??????","??????","??????"),
                              labels =c("1","2","3","4","5") )]
 
 resMerged[, range:= log(dayMax/dayMin)]
