@@ -6,11 +6,15 @@ require(lubridate)
 require(plyr)
 
 
-divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
+#divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
+
+divText <- data.table(read.table(paste0(tradingFolder,"divRaw1.txt"),header = TRUE,stringsAsFactors = F),keep.rownames = FALSE)
+
+#divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
 
 
-divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
 names(divText) <- c("ticker","chineseName","divs")
+
 divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
 divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
 
