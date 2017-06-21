@@ -6,7 +6,7 @@ userName <- "LUke"
 getFTSEData <- function() {
   
   download.file("https://www.ftse.com/analytics/factsheets/Home/DownloadConstituentsWeights/?indexdetails=XINA50", "res.pdf", mode="wb")
-  toc <- pdf_text(paste0("C:/Users/",userName,"/Documents/res.pdf"))
+  toc <- pdf_text(paste0("C:/Users/",Sys.getenv("RSTUDIO_USER_IDENTITY"),"/Documents/res.pdf"))
   
   #print(toc)
   t1<-str_split(toc[1],"\n")  
