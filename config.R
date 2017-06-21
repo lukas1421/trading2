@@ -17,6 +17,9 @@ cybDir <- "J:\\Data\\cybR\\"
 
 
 #for laptop
+userName <- Sys.getenv("RSTUDIO_USER_IDENTITY")
+tradingFolder <- paste0("C:\\Users\\",Sys.getenv("username"),"\\Desktop\\Trading\\")
+
 dataFolder <- "G:\\export\\"
 minuteDataFolder <- "G:\\export_1m\\"
 cybDir <- "H:\\Data\\cybR\\"

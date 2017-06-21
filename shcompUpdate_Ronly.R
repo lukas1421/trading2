@@ -192,7 +192,6 @@ g<-xts(g,order.by = resMerged$D)
 candleChart(g['20170101/20170701'], theme="white",type="candles")
 
 res[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]
-
 g1<-res[,list(Open=O,High=H,Low=L,Close=C),]
 g1 <- xts(g1,order.by = res$DT)
 candleChart(g1['20170612/20170616'], theme="white",type="candles")
