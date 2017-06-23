@@ -72,8 +72,8 @@ stocks <- c("2823:HK","2822:HK", "3147:HK", "3188:HK", "FXI:US","CNXT:US","ASHR:
 
   for(i in stocks) {
     print(i)
-    a <- read_html(httr::GET(paste("https://www.bloomberg.com/quote/",i, sep=""),use_proxy("127.0.0.1",1080)))
-    #a <- read_html(httr::GET(paste("https://www.bloomberg.com/quote/",i, sep="")))
+    #a <- read_html(httr::GET(paste("https://www.bloomberg.com/quote/",i, sep=""),use_proxy("127.0.0.1",1080)))
+    a <- read_html(httr::GET(paste("https://www.bloomberg.com/quote/",i, sep="")))
     b<-html_nodes(a,"div") %>% html_text() %>% (function(x) {x[str_sub(str_trim(x),1,3) == "NAV"]})
     b<-(stringr::str_split(b[[1]],"\\s\\s+"))
     c<-as.numeric(str_match(html_nodes(a,"meta")[str_detect(html_nodes(a,"meta"),"price")][1],"[[:digit:].]+"))
