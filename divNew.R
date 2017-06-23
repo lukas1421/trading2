@@ -6,16 +6,20 @@ require(lubridate)
 require(plyr)
 
 
-#divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
-
-divText <- data.table(read.table(paste0(tradingFolder,"divRaw1.txt"),header = TRUE,stringsAsFactors = F),keep.rownames = FALSE)
-
-#divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
-
+url <- getDivURLNew()
+a<-read_html(url)
+l<-html_nodes(a,"table")
+divText <- data.table(html_table(l[[3]]))
 names(divText) <- c("ticker","chineseName","divs")
-
 divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
 divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
+
+#divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
+#divText <- data.table(read.table(paste0(tradingFolder,"divRaw1.txt"),header = TRUE,stringsAsFactors = F),keep.rownames = FALSE)
+#divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
+#names(divText) <- c("ticker","chineseName","divs")
+#divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
+
 
 res<-divText[, c(chineseName,extractDiv1(ticker,divs)), by=.(ticker)]
 
@@ -59,3 +63,13 @@ getLastCloseV3 <- function(symb,dat) {
       return(0.0)
     })
 }
+
+getDivURLNew <-function() {
+  url<-"http://stock.10jqka.com.cn/jyts_list/"
+  a<-read_html(url,encoding = "gbk")
+  l<-html_nodes(a,"a")
+  l1<-xml2::xml_attrs(l)
+  return((l1[which(lapply(l1,function(x) grep("沪深股市交易提示",x))>0)[1]])[[1]] %>% 
+           (function(x) x[which(names(x)=="href")])) 
+}
+
