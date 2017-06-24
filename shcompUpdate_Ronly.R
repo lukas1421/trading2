@@ -11,7 +11,7 @@ require(quantmod)
 if(Sys.getenv("USERNAME")=="LUke") {
   mainDir <- "J:\\Data\\mainBoardR\\"
   dayDataFolder <- "J:\\TDX\\T0002\\export\\"
-} elseif(Sys.getenv("USERNAME")=="Luke Shi") {
+} else if(Sys.getenv("USERNAME")=="Luke Shi") {
   mainDir <- "H:\\Data\\mainBoardR\\"
   dayDataFolder <-  "G:\\export\\"
 }
