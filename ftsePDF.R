@@ -66,10 +66,10 @@ updateFTSEWeights <- function() {
 
 getNAV <- function() {
 
-stocks <- c("2823:HK","2822:HK", "3147:HK", "3188:HK", "FXI:US","CNXT:US","ASHR:US","ASHS:US")
+  stocks <- c("2823:HK","2822:HK", "3147:HK", "3188:HK", "FXI:US","CNXT:US","ASHR:US","ASHS:US")
   require(rvest)
   require(stringr)
-
+  
   for(i in stocks) {
     print(i)
     #a <- read_html(httr::GET(paste("https://www.bloomberg.com/quote/",i, sep=""),use_proxy("127.0.0.1",1080)))
