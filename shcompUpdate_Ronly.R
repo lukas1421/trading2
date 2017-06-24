@@ -8,12 +8,15 @@ require(reshape2)
 require(PerformanceAnalytics)
 require(quantmod)
 
-#mainDir <- "J:\\Data\\mainBoardR\\"
-#dayDataFolder <- "J:\\TDX\\T0002\\export\\"
+if(Sys.getenv("USERNAME")=="LUke") {
+  mainDir <- "J:\\Data\\mainBoardR\\"
+  dayDataFolder <- "J:\\TDX\\T0002\\export\\"
+} elseif(Sys.getenv("USERNAME")=="Luke Shi") {
+  mainDir <- "H:\\Data\\mainBoardR\\"
+  dayDataFolder <-  "G:\\export\\"
+}
 
 
-mainDir <- "H:\\Data\\mainBoardR\\"
-dayDataFolder <-  "G:\\export\\"
 
 indexDay <- fread(paste0(dayDataFolder,"SH#000001.txt"),header = TRUE,skip = 1,fill = T,
                   showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
