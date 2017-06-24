@@ -54,7 +54,7 @@ getFTSEData <- function() {
 
 updateFTSEWeights <- function() {
   res <- getFTSEData()
-  wb <- loadWorkbook("C:\\Users\\Luke\\Desktop\\Trading\\new.xlsx",create = TRUE)
+  wb <- loadWorkbook(paste0("C:\\Users\\",Sys.getenv("RSTUDIO_USER_IDENTITY"),"\\Desktop\\Trading\\new.xlsx"),create = TRUE)
   createSheet(wb,"Sheet1")
   writeWorksheet(wb,res,"Sheet1",startRow = 1,startCol = 1, header = T)
   saveWorkbook(wb)
@@ -196,19 +196,19 @@ getSHCOMP()
 ###########################################################################################################################################
 
 getBOCRmbRate<- function(){
-a <- read_html("http://www.boc.cn/sourcedb/whpj")
-a <- html_nodes(a, "tr")
-a <- html_text(a)
-a <-iconv(a,"utf-8","gb2312")
-
-a<-str_split(str_trim(a[str_detect(a,"美元")]),"\\s+")
-a[[1]] <- NULL
-a <- data.table(matrix(unlist(a),nrow = length(a),byrow = T))
-#names(a) <- c("货币名称","现汇买入价"," 现钞买入价","现汇卖出价","现钞卖出价","中行折算价","发布日期","发布时间")
-names(a) <- c("currency","Buy wire"," Buy cash","Sell wire","Sell Cash","BOC","Date","Time")
-#a[, BOC:=as.numeric(BOC)/100]
-print(as.numeric(a$BOC)/100)
-print(a)
+  a <- read_html("http://www.boc.cn/sourcedb/whpj")
+  a <- html_nodes(a, "tr")
+  a <- html_text(a)
+  a <-iconv(a,"utf-8","gb2312")
+  
+  a<-str_split(str_trim(a[str_detect(a,"美元")]),"\\s+")
+  a[[1]] <- NULL
+  a <- data.table(matrix(unlist(a),nrow = length(a),byrow = T))
+  #names(a) <- c("货币名称","现汇买入价"," 现钞买入价","现汇卖出价","现钞卖出价","中行折算价","发布日期","发布时间")
+  names(a) <- c("currency","Buy wire"," Buy cash","Sell wire","Sell Cash","BOC","Date","Time")
+  #a[, BOC:=as.numeric(BOC)/100]
+  print(as.numeric(a$BOC)/100)
+  print(a)
 }
 
 getBOCRmbRate()
