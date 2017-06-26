@@ -1,6 +1,6 @@
 
 
-userName <- "LUke"
+userName <- Sys.getenv("USERNAME")
 #tradingFolder <- "c:"
 
 getFTSEData <- function() {
