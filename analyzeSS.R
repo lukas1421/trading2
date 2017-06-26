@@ -430,7 +430,8 @@ getWeekdayFunAll <- function(...) {
 }
 
 getWeekdayCL <- function() {
-  d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
+  #d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
+  d<- fread(paste0("C:\\Users\\",Sys.getenv("USERNAME"), "\\Desktop\\Trading\\test.txt",header = FALSE))
   d<-d[, c(V2,computeWeekdayCLPure(V1)), keyby=list(V1)]
   print(d)
   return(d)
@@ -440,7 +441,8 @@ getBenchMark <- function() {
   d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
   d<- d[, c(V2,getCorrelGen(V1)), keyby=list(V1)]
   #print(d)
-  write.table(d, "C:\\Users\\LUke\\Desktop\\Trading\\bench.txt",quote = FALSE,sep = "\t")
+  
+  write.table(d, paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\Desktop\\Trading\\bench.txt",quote = FALSE,sep = "\t"))
   return(d)
 }
 
@@ -471,14 +473,15 @@ getLastWeekEachDayReturnAll <- function() {
 
 
 getWeekReturnAll <- function() {
-  d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
+  d<- fread(paste0("C:\\Users\\",Sys.getenv("USERNAME"), "\\Desktop\\Trading\\test.txt",header = FALSE))
+  #d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
   d<- d[,list("Ch"=V2,weekRtn=getWeekReturn(V1)),keyby=list(V1)]
   return(d[, ])
 }
 
 
 getPercentileAll <- function() {
-  d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
+  d<- fread(paste0("C:\\Users\\",Sys.getenv("USERNAME"), "\\Desktop\\Trading\\test.txt",header = FALSE))
   d<- d[,list("Ch"=V2,weekReturn=getPercentile(V1)),keyby=list(V1)]
   #names(d) <- c("Ticker", "Perc")
   return(d[, ])
@@ -540,3 +543,20 @@ getYtdLowDate <- function(symb) {
   data <- getDataPure(symb)
   return(list(lowDate=data[D>ymd("20170101")][min(L)==L][1][,D]))
 }
+
+getYtdPercentile <- function(symb) {
+  d <- getDataPure(symb)
+  d <- d[D>ymd("20161231")]
+  d[, ytdMax:=cummax(H)]
+  d[, ytdMin:= cummin(L)]
+  return(list(perc=d[.N, (C-ytdMin)/(ytdMax-ytdMin)]))
+  #print(d)
+}
+
+getYtdPercentileAll <- function() {
+  res<- fread(paste0(tradingFolder,"test.txt"),header = FALSE)
+  res<- res[,(getYtdPercentile(V1)),keyby=list(V1)]
+  res
+}
+
+

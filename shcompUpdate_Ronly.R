@@ -186,7 +186,6 @@ assign(paste0("f",1999),fread(paste0(mainDir,"SH000001_", 1999,".csv")))
 assign(paste0("f",2000),fread(paste0(mainDir,"SH000001_", 2000,".csv")))
 assign(paste0("f",2001),fread(paste0(mainDir,"SH000001_", 2001,".csv")))
 
-
 data.table::rbindlist(list(f1999,f2000),use.names = T,fill = T)
 
 #Graph
