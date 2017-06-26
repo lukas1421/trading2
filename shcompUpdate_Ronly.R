@@ -101,8 +101,8 @@ res2[, pmMinT1 := as.numeric(pmTime[which.min(unlist(mget(paste0("L",pmTime))))]
 # MERGE ########################################################################################
 resMerged <- merge(indexDay,res2,by = "D" )
 
-resMerged[, weekday:= factor(weekdays(D),levels = c("????һ","???ڶ?","??????","??????","??????"),
-                             labels =c("1","2","3","4","5") )]
+#resMerged[, weekday:= factor(weekdays(D),levels = c("","???ڶ?","??????","??????","??????"),
+#                             labels =c("1","2","3","4","5") )]
 
 resMerged[, range:= log(dayMax/dayMin)]
 resMerged[, first10:= log(C940/O931)]
