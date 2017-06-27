@@ -5,8 +5,10 @@ userName <- Sys.getenv("USERNAME")
 
 getFTSEData <- function() {
   
-  download.file("https://www.ftse.com/analytics/factsheets/Home/DownloadConstituentsWeights/?indexdetails=XINA50", "res.pdf", mode="wb")
-  toc <- pdf_text(paste0("C:/Users/",Sys.getenv("RSTUDIO_USER_IDENTITY"),"/Documents/res.pdf"))
+  download.file("https://www.ftse.com/analytics/factsheets/Home/DownloadConstituentsWeights/?indexdetails=XINA50"
+                , destfile = paste0(tradingFolder,"res.pdf"), mode="wb")
+  
+  toc <- pdf_text(paste0(tradingFolder,"res.pdf"))
   
   #print(toc)
   t1<-str_split(toc[1],"\n")  
@@ -54,7 +56,7 @@ getFTSEData <- function() {
 
 updateFTSEWeights <- function() {
   res <- getFTSEData()
-  wb <- loadWorkbook(paste0("C:\\Users\\",Sys.getenv("RSTUDIO_USER_IDENTITY"),"\\Desktop\\Trading\\new.xlsx"),create = TRUE)
+  wb <- loadWorkbook(paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\Desktop\\Trading\\new.xlsx"),create = TRUE)
   createSheet(wb,"Sheet1")
   writeWorksheet(wb,res,"Sheet1",startRow = 1,startCol = 1, header = T)
   saveWorkbook(wb)
