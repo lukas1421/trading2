@@ -174,11 +174,9 @@ getCrashReturnAll <- function() {
 
 
 getCorrel<- function(symb1, index) {
-  
   dt1<-getDataPure(symb1)
   dt1[, eval(symb1):= C/shift(C,1)-1 ]
   #print(dt1)
-  
   dt2 <- get(index)
   #print(dt2)
   dt2[, eval(index):= C/shift(C,1)-1]
