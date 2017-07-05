@@ -180,7 +180,7 @@ candleChart(cybGraph['20170101/20170701'], theme="white",type="candles")
 resCyb[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]
 cybGraphD<-resCyb[,list(Open=O,High=H,Low=L,Close=C),]
 cybGraphD <- xts(cybGraphD,order.by = resCyb$DT)
-candleChart(cybGraphD['20170612/20170613'], theme="white",type="candles")
+candleChart(cybGraphD['20170630/20170703'], theme="white",type="candles")
 
 
 
