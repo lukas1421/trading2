@@ -27,7 +27,7 @@ calcDailyMean <- function(symb) {
   d<-getDataPure(symb)
   d[,ret:=(C/shift(C,1)-1)]
   mean <- d[D>ymd("20161231"), mean(ret,na.rm=T)]
-  return(list(mean=(mean)))
+  return(mean)
 }
 
 calcDailyMeanSD <- function(symb) {
@@ -40,6 +40,16 @@ calcDailyMeanSD <- function(symb) {
   return(list(symb=symb,mean=(mean),sd=sd))
 }
 
+calcDailyHLSD <- function(symb) {
+  d<-getDataPure(symb)
+  d[,HLret:=H/L-1]
+  d[, ret:=C/shift(C,1)-1]
+  mean <- d[D>ymd("20161231"), mean(ret,na.rm=T)]
+  sd <- d[D>ymd("20161231"), sd(ret,na.rm=T)]
+  hlsd <- d[D>ymd("20161231"), sd(HLret,na.rm=T)]
+  return(list(symb=symb,mean=(mean),sd=sd,hlsd=hlsd))
+}
+
 genReturnMatrix <- function(symb) {
   d<-getDataPure(symb)
   d[, ret:=C/shift(C,1)-1]
@@ -47,6 +57,9 @@ genReturnMatrix <- function(symb) {
   names(res) <- c("D", symb)
   return(res)
 }
+
+
+
 
 res <- data.table()
 for(x in ptf) {
@@ -66,6 +79,13 @@ checkCorrel <- function(symb1,symb2) {
 }
 
 
+retMat <- matrix(nrow=10, ncol = 1)
+dimnames(retMat) <- list(ptf)
+for(i in seq_along(ptf)) {
+  retMat[i,1] <- calcDailyMean(ptf[i])
+}
+
+
 corMat <- matrix(nrow = 10,ncol = 10)
 dimnames(corMat) <- list(ptf,ptf)
 names(corMat) <- 
@@ -73,10 +93,10 @@ for(i in seq_along(ptf)) {
   for(j in seq_along(ptf)) {
     print(paste0("i j ", i, j, ptf[i],ptf[j]))
     if(i==j) {
-      
+      corMat[i,j] <- var(res[, get(ptf[i])])
     } else {
-      corMat[i,j] <- cor(res[,get(ptf[i])], res[, get(ptf[j])])
-      print(cor(res[,get(x)], res[, get(y)]))
+      corMat[i,j] <- cov(res[,get(ptf[i])], res[, get(ptf[j])])
+      print(cov(res[,get(x)], res[, get(y)]))
     }
   }
 }
@@ -84,4 +104,11 @@ for(i in seq_along(ptf)) {
 weightMatrix <- matrix(0.1,ncol = 10)
 
 weightMatrix %*% corMat %*% t(weightMatrix)
+
+weightMatrix %*% retMat 
+
+
+
+
+
 
