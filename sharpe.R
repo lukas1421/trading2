@@ -85,30 +85,48 @@ for(i in seq_along(ptf)) {
   retMat[i,1] <- calcDailyMean(ptf[i])
 }
 
-
-corMat <- matrix(nrow = 10,ncol = 10)
-dimnames(corMat) <- list(ptf,ptf)
-names(corMat) <- 
-for(i in seq_along(ptf)) {
-  for(j in seq_along(ptf)) {
-    print(paste0("i j ", i, j, ptf[i],ptf[j]))
-    if(i==j) {
-      corMat[i,j] <- var(res[, get(ptf[i])])
-    } else {
-      corMat[i,j] <- cov(res[,get(ptf[i])], res[, get(ptf[j])])
-      print(cov(res[,get(x)], res[, get(y)]))
+generateCorMat <- function(ptf) {
+  corMat <- matrix(nrow = 10,ncol = 10)
+  dimnames(corMat) <- list(ptf,ptf)
+  names(corMat) <- 
+    for(i in seq_along(ptf)) {
+      for(j in seq_along(ptf)) {
+        print(paste0("i j ", i, j, ptf[i],ptf[j]))
+        if(i==j) {
+          corMat[i,j] <- var(res[, get(ptf[i])])
+        } else {
+          corMat[i,j] <- cov(res[,get(ptf[i])], res[, get(ptf[j])])
+          print(cov(res[,get(x)], res[, get(y)]))
+        }
+      }
     }
-  }
+  return(corMat)
 }
 
-weightMatrix <- matrix(0.1,ncol = 10)
+weightMatrix <- matrix(0.1,nrow = 10)
 
-weightMatrix %*% corMat %*% t(weightMatrix)
+t(weightMatrix) %*% corMat %*% weightMatrix   
 
-weightMatrix %*% retMat 
-
-
+t(weightMatrix) %*% retMat 
 
 
+
+findSharpeForTanPtf <- function(ptf) {
+  
+  #ptf <- c("sz002415","sh600036","sh600660","sz000418","sh601238","sz002008","sh600519","sh600104","sz000651","sh601628")
+  corMat<-generateCorMat(ptf)
+  
+  sigma.inv.mat <- solve(corMat)
+  one.vec <- rep(1, nrow(corMat))
+  rf <- 0
+  mu.minus.rf <- retMat - rf*one.vec
+  top.mat <- sigma.inv.mat%*% mu.minus.rf
+  bot.val <- as.numeric(t(one.vec) %*% top.mat)
+  t.vec <- top.mat[,1]/bot.val
+  mean <- crossprod(t.vec,retMat)
+  sd<-sqrt(as.numeric(t(t.vec) %*% corMat %*% t.vec ))
+  print(t.vec)
+  return(list(mean=mean,sd=sd,sr=mean/sd))
+}
 
 
