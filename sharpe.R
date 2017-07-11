@@ -44,6 +44,16 @@ calcDailyMeanSD <- function(symb) {
   return(list(symb=symb,mean=(mean),sd=sd))
 }
 
+drawRollingSD <- function(symb) {
+  d<-getDataPure(symb)
+  d[,ret:=(C/shift(C,1)-1)]
+  #d[, mean(ret,na.rm=T)]
+  #d[, sd:=sd(ret,na.rm=T)*sqrt(252)]
+  d[, sd:= rollapply(ret,20, function(x) sd(x)*sqrt(252),align="right",fill=NA)]
+  print(d[D>ymd("20161231"),list(D,sd)])
+  d[D>ymd("20121231"), qplot(D,sd,geom = "line")]
+}
+
 calcDailyHLSD <- function(symb) {
   d<-getDataPure(symb)
   d[,HLret:=H/L-1]
