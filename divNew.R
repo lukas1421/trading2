@@ -9,7 +9,7 @@ require(plyr)
 url <- getDivURLNew()
 a<-read_html(url)
 l<-html_nodes(a,"table")
-divText <- data.table(html_table(l[[3]]))
+divText <- data.table(html_table(l[[4]]))
 names(divText) <- c("ticker","chineseName","divs")
 divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
 divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
