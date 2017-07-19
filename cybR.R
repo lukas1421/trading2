@@ -174,13 +174,13 @@ cybMerged[, AMPMRatioYCat:= cut(AMPMRatioY,quantile(AMPMRatioY,na.rm = T),includ
 # daily graph bars
 cybGraph<-cybDay[,list(Open=O,High=H,Low=L,Close=C),]
 cybGraph <- xts(cybGraph,order.by = cybDay$D)
-candleChart(cybGraph['20170101/20170701'], theme="white",type="candles")
+candleChart(cybGraph['20170101/20170718'], theme="white",type="candles")
 
 #Detailed Graph CYB
 resCyb[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]
 cybGraphD<-resCyb[,list(Open=O,High=H,Low=L,Close=C),]
 cybGraphD <- xts(cybGraphD,order.by = resCyb$DT)
-candleChart(cybGraphD['20170630/20170703'], theme="white",type="candles")
+candleChart(cybGraphD['20170630/20170718'], theme="white",type="candles")
 
 
 
