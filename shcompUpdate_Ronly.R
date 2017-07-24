@@ -101,8 +101,7 @@ res2[, pmMinT1 := as.numeric(pmTime[which.min(unlist(mget(paste0("L",pmTime))))]
 # MERGE ########################################################################################
 resMerged <- merge(indexDay,res2,by = "D" )
 
-#resMerged[, weekday:= factor(weekdays(D),levels = c("","???ڶ?","??????","??????","??????"),
-#                             labels =c("1","2","3","4","5") )]
+resMerged[, weekday:= wday(D)-1]
 
 resMerged[, range:= log(dayMax/dayMin)]
 resMerged[, first10:= log(C940/O931)]
@@ -162,8 +161,7 @@ resMerged[, AMPMRatioYCat:= cut(AMPMRatioY,quantile(AMPMRatioY,na.rm = T),includ
 resMerged[is.na(percentileY), percentileY:= 0.5]
 resMerged[, percentileCat:=cut(percentile, breaks = quantile(percentile),include.lowest = T)]
 resMerged[, percentileYCat:=cut(percentileY, breaks = quantile(percentileY,na.rm = T),include.lowest = T)]
-#resMerged[, weekday:= factor(weekdays(D),levels = c("Monday","Tuesday","Wednesday","Thursday","Friday"),
-#                        labels =c("1","2","3","4","5") )]
+resMerged[, weekday:= wday(D)-1]
 
 
 
@@ -192,9 +190,10 @@ data.table::rbindlist(list(f1999,f2000),use.names = T,fill = T)
 #Graph
 g<-resMerged[,list(Open=O,High=H,Low=L,Close=C),]
 g<-xts(g,order.by = resMerged$D)
-candleChart(g['20170101/20170801'], theme="white",type="candles")
+candleChart(g['20170717/20170801'], theme="white",type="candles")
 
 res[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]
+
 g1<-res[,list(Open=O,High=H,Low=L,Close=C),]
 g1 <- xts(g1,order.by = res$DT)
 candleChart(g1['20170717/20170719'], theme="white",type="candles")

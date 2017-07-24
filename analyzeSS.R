@@ -290,6 +290,7 @@ getPercentile <- function(symb) {
 computeWeekday <- function(symb) {
   d <- getData(symb)
   d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
+  d[]
   d[, CO:=log(C/O)]
   d[, CH:=log(C/H)]
   d[, CL:=log(C/L)]
@@ -557,4 +558,23 @@ getYtdPercentileAll <- function() {
   res
 }
 
+
+calcFriSharpe <- function(symb) {
+  d <- getDataPure(symb)
+  d[, cc:= (C/shift(C,1)-1)]
+  d[, w:=wday(D)-1]
+  m <- d[,mean(cc,na.rm=T)]
+  sd <- d[, sd(cc,na.rm=T)]
+  return(list(sr=m/sd))
+}
+
+getFriSharpeAll <- function() {
+  res<-fread(paste0(tradingFolder,"test.txt"),header = FALSE)
+  res <- res[, calcFriSharpe(V1), keyby=list(V1)]
+  res
+}  
+  
+
+  
+  
 
