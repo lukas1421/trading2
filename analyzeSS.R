@@ -5,7 +5,8 @@ library(zoo)
 library(data.table)
 library(lubridate)
 library(PerformanceAnalytics)
-
+require(xts)
+require(quantmod)
 
 
 
@@ -200,8 +201,7 @@ getCorrelGen<-function(symb) {
 
 ####################################### GRAPH #########################
 graph <- function(symb,dateStr) {
-  require(xts)
-  require(quantmod)
+
     ticker <- paste0(toupper(str_sub(symb,1,2)),"#",str_sub(symb,3))
   d<- fread(paste0(dataFolder,ticker,".txt"),skip = 1,fill = T,showProgress = TRUE,col.names = c("D","O","H","L","C","V","A"))
   d <- d[!.N,]
@@ -289,8 +289,7 @@ getPercentile <- function(symb) {
 
 computeWeekday <- function(symb) {
   d <- getData(symb)
-  d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
-  d[]
+  d[, weekday:=wday(D)-1]
   d[, CO:=log(C/O)]
   d[, CH:=log(C/H)]
   d[, CL:=log(C/L)]
@@ -352,14 +351,14 @@ getHOCHInfo <-function(symb) {
   print(d)
   d[, HOCHOverRangeY:= shift(HOCHOverRange,1)]
   d[, HOCHOverRangeYCat:=cut(HOCHOverRangeY, quantile(HOCHOverRangeY,na.rm = T),include.lowest = T)]
-  d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
+  d[, weekday:=wday(D)-1]
   print(d[, calcSharp(CO), keyby=list(weekday, HOCHOverRangeYCat)])  
   
 }
 
 computeWeekdayCLPure<-function(symb) {
   d <- getData(symb)
-  d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
+  d[, weekday:=wday(D)-1]
   d[, CL:=log(C/L)]
   
   output <- d[, list(CL=mean(CL)), keyby=list(weekday)][, list(CL)]
@@ -370,7 +369,7 @@ computeWeekdayCLPure<-function(symb) {
 
 computeWeekdayPure <- function(symb,bull) {
   d <- getData(symb)
-  d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
+  d[, weekday:=wday(D)-1]
   d[, CO:=log(C/O)]
   d[, percentile:= (C-L)/(H-L)]
   d[, percentileY:= shift(percentile,1)]
@@ -387,7 +386,7 @@ computeWeekdayFun <- function(symb, col) {
   require(pryr)
   
   d <- getData(symb)
-  d[,weekday:= factor(weekdays(D),levels = c("星期一","星期二","星期三","星期四","星期五"),labels = c("1","2","3","4","5")) ]
+  d[, weekday:=wday(D)-1]
   d[!is.na(weekday), CO:=(C/O-1)]
   #d[, percentile:= (C-L)/(H-L)]
   #d[, percentileY:= shift(percentile,1)]
@@ -441,9 +440,15 @@ getBenchMark <- function() {
   d<- d[, c(V2,getCorrelGen(V1)), keyby=list(V1)]
   #print(d)
   
-  write.table(d, paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\Desktop\\Trading\\bench.txt",quote = FALSE,sep = "\t"))
+  #filling bench
+  write.table(d, paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\Desktop\\Trading\\bench.txt"),quote = FALSE,sep = "\t")
   return(d)
 }
+
+#write.table(d, paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\Desktop\\Trading\\bench.txt",quote = FALSE,sep = "\t"))
+
+#filling benchlist
+
 
 
 getWeekReturn<- function(symb) {
