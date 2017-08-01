@@ -191,7 +191,7 @@ data.table::rbindlist(list(f1999,f2000),use.names = T,fill = T)
 #Graph
 g<-resMerged[,list(Open=O,High=H,Low=L,Close=C),]
 g<-xts(g,order.by = resMerged$D)
-candleChart(g['20170717/20170801'], theme="white",type="candles")
+candleChart(g['20170701/20170801'], theme="white",type="candles")
 
 res[, DT:=ymd_hm(paste(D,paste0(str_sub(T,1,str_length(T)-2),":",str_sub(T,str_length(T)-1))))]
 
