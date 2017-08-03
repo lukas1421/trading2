@@ -10,7 +10,12 @@ calcSSSharpe <- function(symb) {
   mean <- d[D>ymd("20161231"), mean(ret,na.rm=T)]
   sd <- d[D>ymd("20161231"), sd(ret,na.rm=T)]
   #print(paste0(" mean ",mean," sd ",sd))
-  return(list(SR=(mean/sd), mean=mean, sd=sd))
+  ytdReturn <- (d[.N,C])/(d[D<ymd("20170101")][.N,C])-1
+  ytdMax <- d[D>ymd("20161231"),max(H)]
+  ytdMin <- d[D>ymd("20161231"),min(L)]
+  last <- d[.N,C]
+  ytdPerc <- (last - ytdMin)/ ( ytdMax - ytdMin)
+  return(list(SR=(mean/sd), mean=mean, sd=sd,ytdRtn = ytdReturn, ytdPerc = ytdPerc))
 }
 
 ptf <- c("sz002415","sh600036","sh600660","sz000418","sh601238","sz002008","sh600519","sh600104","sz000651","sh601628")
