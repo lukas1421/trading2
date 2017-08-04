@@ -5,17 +5,22 @@ require("lubridate")
 # get ptf sharpe and incremental sharpe
 
 calcSSSharpe <- function(symb) {
+  return(calcSSSharpeDate(symb))
+}
+
+#date
+calcSSSharpeDate <- function(symb,dat=ymd("20161231")) {
   d<-getDataPure(symb)
   d[,ret:=(C/shift(C,1)-1)]
-  mean <- d[D>ymd("20161231"), mean(ret,na.rm=T)]
-  sd <- d[D>ymd("20161231"), sd(ret,na.rm=T)]
+  mean <- d[D>dat, mean(ret,na.rm=T)]
+  sd <- d[D>dat, sd(ret,na.rm=T)]
   #print(paste0(" mean ",mean," sd ",sd))
-  ytdReturn <- (d[.N,C])/(d[D<ymd("20170101")][.N,C])-1
-  ytdMax <- d[D>ymd("20161231"),max(H)]
-  ytdMin <- d[D>ymd("20161231"),min(L)]
+  ytdReturn <- (d[.N,C])/(d[D<dat][.N,C])-1
+  ytdMax <- d[D>dat,max(H)]
+  ytdMin <- d[D>dat,min(L)]
   last <- d[.N,C]
   ytdPerc <- (last - ytdMin)/ ( ytdMax - ytdMin)
-  return(list(SR=(mean/sd), mean=mean, sd=sd,ytdRtn = ytdReturn, ytdPerc = ytdPerc))
+  return(list(SR=(mean/sd*sqrt(252)), mean=mean*252, sd=sd*sqrt(252),ytdRtn = ytdReturn, ytdPerc = ytdPerc))
 }
 
 ptf <- c("sz002415","sh600036","sh600660","sz000418","sh601238","sz002008","sh600519","sh600104","sz000651","sh601628")
@@ -32,12 +37,39 @@ compareAllSharpYtd <- function() {
   return(d)
 }
 
+#compare all sharpe
+compareAllSharpYtdDate <- function(f,...) {
+  d<- fread("C:\\Users\\LUke\\Desktop\\Trading\\test.txt",header = FALSE)
+  d<- d[, c(V2,f(V1,...)), keyby=list(V1)]
+  d[, SR:= ifelse(is.na(SR),0,round(SR,1))]
+  write.table(d[, list(V1,SR)], paste0(tradingFolder,"sharpe.txt"),quote = FALSE,sep = "\t",row.names = FALSE, col.names =FALSE)
+  return(d)
+}
+
+
+sharpGraph <- function(symb) {
+  d<-getDataPure(symb)
+  d[,ret:=(C/shift(C,1)-1)]
+  d[, mean90d :=rollapply(ret,90, function(x) mean(x)*252,align = "right",fill=NA)]
+  d[, sd:= rollapply(ret,90, function(x) sd(x)*sqrt(252),align="right",fill=NA)]
+  d[, SR:= mean90d/sd]
+  print(d)
+  d[D>ymd("20170101")][, qplot(D,SR,geom="line")]
+  #print(d)
+}
+
+#gen last sharpe and send to TXT file
+
+
+
 calcDailyMean <- function(symb) {
   d<-getDataPure(symb)
   d[,ret:=(C/shift(C,1)-1)]
   mean <- d[D>ymd("20161231"), mean(ret,na.rm=T)]
   return(mean)
 }
+
+
 
 calcDailyMeanSD <- function(symb) {
   #symbName <- (substitute(symb))

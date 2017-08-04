@@ -247,3 +247,7 @@ getBOCRmbRate()
 #get wtd max and min everyday
 getWtdMaxMinAll()
 getMAAll(20)
+#compute ytd sharpe and output to file
+compareAllSharpYtd()
+
+

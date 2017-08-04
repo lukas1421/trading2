@@ -6,41 +6,45 @@ require(lubridate)
 require(plyr)
 
 
-url <- getDivURLNew()
-a<-read_html(url)
-l<-html_nodes(a,"table")
-divText <- data.table(html_table(l[[3]]))
-
-if(ncol(divText)!=3) {
-  divText <- data.table(html_table(l[[4]]))
+getDivs <- function() {
+  url <- getDivURLNew()
+  a<-read_html(url)
+  l<-html_nodes(a,"table")
+  divText <- data.table(html_table(l[[3]]))
+  
+  if(ncol(divText)!=3) {
+    divText <- data.table(html_table(l[[4]]))
+  }
+  
+  names(divText) <- c("ticker","chineseName","divs")
+  
+  divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
+  divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
+  
+  #divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
+  #divText <- data.table(read.table(paste0(tradingFolder,"divRaw1.txt"),header = TRUE,stringsAsFactors = F),keep.rownames = FALSE)
+  #divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
+  #names(divText) <- c("ticker","chineseName","divs")
+  #divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
+  
+  
+  res<-divText[, c(chineseName,extractDiv1(ticker,divs)), by=.(ticker)]
+  
+  res[, adjFactor:= ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))/lastPrice]
+  
+  res[, adjPrice := ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))]
+  
+  res<-res[!(!is.na(stockDivDate) & cashDivDate!=Sys.Date())]
+  res<-res[!is.infinite(adjFactor) & !is.nan(adjFactor)]
+  
+  res[, inList:=isInStockList(ticker), .(ticker) ]
+  
+  res<-res[inList==TRUE, ]
+  
+  write.table(res, paste0(tradingFolder,"div.txt"),quote = FALSE,sep = "\t")
+  print(res)
+  invisible()
 }
-
-names(divText) <- c("ticker","chineseName","divs")
-
-divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
-divText[, ticker:=ifelse(str_sub(ticker,1,1)=="6", paste0("sh",ticker),paste0("sz",ticker) )]
-
-#divText<- fread(paste0(tradingFolder,"divRaw1.txt"),header = TRUE)
-#divText <- data.table(read.table(paste0(tradingFolder,"divRaw1.txt"),header = TRUE,stringsAsFactors = F),keep.rownames = FALSE)
-#divText<- fread(paste0(tradingFolder,"divCSV.csv"),header = TRUE)
-#names(divText) <- c("ticker","chineseName","divs")
-#divText[, ticker:=str_pad(ticker,width = 6,side = "left",pad = "0") ]
-
-
-res<-divText[, c(chineseName,extractDiv1(ticker,divs)), by=.(ticker)]
-
-res[, adjFactor:= ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))/lastPrice]
-
-res[, adjPrice := ((lastPrice - cashDiv/10)/(1+as.numeric(stockDiv)/10))]
-
-res<-res[!(!is.na(stockDivDate) & cashDivDate!=Sys.Date())]
-res<-res[!is.infinite(adjFactor) & !is.nan(adjFactor)]
-
-res[, inList:=isInStockList(ticker), .(ticker) ]
-
-res<-res[inList==TRUE, ]
-
-write.table(res, paste0(tradingFolder,"div.txt"),quote = FALSE,sep = "\t")
 
 
 

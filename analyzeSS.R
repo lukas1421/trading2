@@ -42,8 +42,8 @@ analyzeSS <- function(symb) {
   dt[, percentile:=(C-L)/(H-L)]
   dt[, percentileY:=shift(percentile,1)]
   
-  dt[, weekday:=factor(weekdays(D),levels=c("星期一","星期二","星期三","星期四","星期五"),labels=c("1","2","3","4","5"))]
-  
+  #dt[, weekday:=factor(weekdays(D),levels=c("星期一","星期二","星期三","星期四","星期五"),labels=c("1","2","3","4","5"))]
+  dt [ , weekday := wday(D)-1]
   print(dt[,list(CC=mean(CC,na.rm = T),CO=mean(CO,na.rm = T),CL=mean(CL,na.rm = T), CH = mean(CH,na.rm = T) ), keyby=list(weekday)])
   print( dt[, calcSharp(CO),keyby=list(weekday)])
   
